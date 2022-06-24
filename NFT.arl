@@ -1,0 +1,63 @@
+// Exercise NFT.1:
+// Write a smart contract that handles a single NFT.
+// An nft should at minimum have:
+// - a unique identifier
+// - some metadata (it can be a simple string)
+// - an owner
+// - a way for the owner to transfer ownership to someone else
+
+// Note that this is a very very small contract
+
+// Exercise NFT.2:
+// Modify this smart contract so that the sale of this NFT can be done safely (without requiring trust)
+// The price should be decided by the current owner (the seller)
+// And a buyer should be able to send the corresponding amount, and becoming the new owner
+
+// Exercise NFT.3:
+// Modify this smart contract so that it can handle multiple NFTs, and let people mint their own NFT, providing the metadata
+
+// Exercise NFT.4:
+// Modify this smart contract so that it has an author, who gets 5% of royalties on every sale of the NFT in the future
+
+// Exercise NFT.5:
+// Find a way that people can use to "transfer" such NFTs without actually paying the royalties.
+
+archetype NFT
+
+variable counter : nat = 0
+
+asset NFT {
+    id : nat;
+    meta : string;
+    owner: address;
+    price: tez = 0tz;
+    author: address;
+}
+
+entry mint(m : string) {
+ NFT.add_update(counter, { meta = m; owner = caller; author = caller });
+ counter += 1;
+}
+
+entry setOwner(idNFT: nat, newOwner: address) {
+    do_require(NFT[idNFT].owner = caller, "Not owner");
+    NFT[idNFT].owner := newOwner;
+}
+
+entry putOnSale(idNFT: nat, newPrice: tez) {
+    do_require(NFT[idNFT].owner = caller, "Not owner");
+    NFT[idNFT].price := newPrice;
+}
+
+entry buy(idNFT: nat) {
+    require {
+        r1: NFT[idNFT].price <> 0tz otherwise "Not on sale";
+        r2: transferred = NFT[idNFT].price otherwise "Wrong amount";
+    } effect {
+        NFT[idNFT].owner := caller;
+        NFT[idNFT].price := 0tz;
+        const amount = 0.05 * transferred;
+        if NFT[idNFT].author <> caller then 
+        transfer amount to NFT[idNFT].author;
+    }
+}
