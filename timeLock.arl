@@ -1,0 +1,60 @@
+// Exercise: TimeLock.1
+
+// Check the contract on gitpod in exercises/timelock_flaw
+// It is a time-lock contract: its storage is a deadline.
+
+// A claim entry point makes it possible for the owner to withdraw some amount from the balance, but only if the date is beyond a deadline.
+
+// A deposit entry point is used to deposit some tez, and at the same time, potentially extend the deadline. 
+
+// Create a test scenario that checks that the contract does what is expected:
+// - it should not be possible to withdraw before the deadline
+// - if a user tries to withdraw more than the balance, he gets the exact balance
+
+// There is a big flaw in the core idea of this contract, which makes it unusable in practice. What is it, and how would you change it to make the contract useful?
+// Smartpy contract, since you may not have gitpod open:
+// import smartpy as sp
+
+// owner = sp.address("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx")
+
+// class TimeLock(sp.Contract):
+//    def __init__(self, date):
+//       self.init(deadline = date)
+
+//    @sp.entry_point
+//    def deposit(self, newDeadline):
+//       sp.if (newDeadline > self.data.deadline):
+//          self.data.deadline = newDeadline
+
+//    @sp.entry_point
+//    def claim(self, requestedAmount):
+//       sp.verify(sp.now > self.data.deadline, "Too early")
+//       sp.verify(sp.source == owner, "Access forbiden")
+//       amount = sp.local('amount', requestedAmount)
+//       sp.if (amount.value >= sp.balance):
+//          amount.value = sp.balance
+//       sp.send(sp.source, amount.value)
+
+
+archetype timelock(deadline : date)
+
+constant owner : address = tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx
+
+entry deposit (newDeadline : date) {
+ require { 
+  r1: newDeadline > deadline
+      otherwise "New deadline must be after current one!"; 
+ }
+ effect { deadline := newDeadline }
+}
+
+
+entry claim (requestedAmount : tez) {
+ sourced by owner
+ require {
+   r2: now > deadline otherwise "Too soon!";
+ }
+ effect {
+   transfer (min(requestedAmount, balance)) to source
+ }
+}
