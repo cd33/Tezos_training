@@ -1,0 +1,16 @@
+parameter (pair int int) ;
+storage int ;
+code { UNPAIR ;      # storage ; parameter
+       UNPAIR ;      # storage ; b ; a
+       DIG 2 ;       # a; b; storage
+       DROP ;        # a; b
+       DUP ;         # a; a; b
+       PUSH int 3 ;  # 3; a; a; b
+       MUL ;         # 3a; a; b
+       DIG 2 ;       # b; 3a; a
+       PUSH int 2 ;  # 2; b; 3a; a
+       MUL ;         # 2b; 3a; a
+       ADD ;         # 2b + 3a; a
+       MUL ;         # (2b + 3a) * a
+       NIL operation ;
+       PAIR }

@@ -1,0 +1,51 @@
+// Important Notes
+// 1. At the end of video, we describe how to do tests that involve dates. It works when testing with a test network, but for the mockup mode you are using, it's a little different. See the updated slide in the next message and the cheat-sheet.
+// 2. The names of some functions have changed since the video:
+// - dorequire becomes do_require
+// - selfaddress becomes self_address
+// - date_from_timestamp becomes int_to_date
+// - use deploy instead of completium.deploy
+
+// Exercise Verifications.1
+// Write a contract that stores an integer, and other information you may need.
+// Anyone should be able to add to this counter, a positive value that is lower than 10.
+// The same person should not be able to add twice in a row. Someone else has to call it in between.
+// Note that you will need to store an address in the contract. For now, initialize it with the address of the owner of the contract. We will later see a better approach.
+// Then add two entry points, one to substract a value, and one to reset the value to 0.
+// Only the owner of the contract may call these entry points.
+// Make sure to check this new slide, not present in the video
+
+// Remember
+// When you create test scenarios, your goal is not only to create scenarios where you make valid calls and check that everything works well, but also to create scenarios that check that invalid calls do fail as they should.
+// Exercise Testing.1
+// Add tests to check that the contract from the previous exercise (verifications), works well.
+// For example:
+// - check that the same person can’t increment twice in a row
+// - check that only the owner may reset the counter
+// All potential errors should be tested
+
+archetype verifications
+
+variable counter : int = 0
+variable owner : address = tz1aGDrJ58LbcnD47CkwSk3myfTxJxipYJyk
+variable lastAccount : option<address> = none
+
+entry increment(val : nat) {
+    require {
+        r1: val < 10 otherwise "Too big";
+        r2: some(caller) <> lastAccount otherwise "Wait your turn";
+    } effect {
+        counter += val;
+        lastAccount := some(caller);
+    }
+}
+
+entry decrement(val : nat) {
+    do_require(caller = owner, "Only owner");
+    counter -= val;
+}
+
+entry reset() {
+    do_require(caller = owner, "Only owner");
+    counter := 0;
+}

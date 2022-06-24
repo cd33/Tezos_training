@@ -1,0 +1,48 @@
+// Important notes
+// 1. Since the video, Archetype added a new syntax, the ternary operator, that can shorten code that deals with options.
+// This code:
+// a := match s with
+// | some(v) -> v
+// | none    -> ...
+// end;
+
+// Can be replaced with:
+// a := s ? the : ...;
+
+// Remember
+// On Tezos, when you call an entry point of a contract, you are sending tez to that contract (it could be 0 tez). If the call succeeds, your tez are transferred. But if the contract, or any of the transactions it produces, directly or indirectly, fail, everything is cancelled and your tez are never transferred.
+
+// Exercise Transactions.1
+// Write a Smart Contract that has a collect entry point, that allows its owner to withdraw an amount of tez from the balance of the contract.
+// The owner has to wait at least 2 minutes between each withdrawal.
+// The owner should not withdraw, each time, more than a maximum amount, that we set in the storage during the origination.
+// Add a deposit entry point that lets anyone deposit some Tez.
+
+archetype transactions (owner: address)
+
+variable lastWithdraw : date = 2022-06-23T15:08:00
+variable limitedAmount : tez = 10tz
+
+entry withdraw(amount : tez) {
+    require {
+        r1: caller = owner otherwise "Only owner";
+        r2: now - lastWithdraw >= 2m otherwise "Too early";
+        r3: amount <= limitedAmount otherwise "Limited to 10"
+    } effect { 
+        transfer amount to owner;
+        lastWithdraw := now;
+    }
+}
+
+entry donate() {
+    do_require(transferred <= 100tz, "Max 100")
+}
+
+entry changeLimitAmount(amount : tez) {
+    require {
+        r4: caller = owner otherwise "Only owner";
+        r5: amount >= 1tz otherwise "Not less than 1";
+    } effect { 
+        limitedAmount := amount;
+    }
+}

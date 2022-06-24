@@ -1,0 +1,35 @@
+// 1. In the video, we explain that when testing a contract with only one entry point, we need to call "default" instead of the name of the entry point. This is not the case anymore, in the new version of Archetype. You can now, and should always use the name of the entry point, never "default".
+// 2. Make sure you use the mockup mode. In our gitpod, it's in this mode by default, so if you directly run node test.js , it should work
+// 3. In your tests, use try/catch so that your errors can be displayed:
+// const { deploy } = require('@completium/completium-cli');
+
+// const test = async () => {
+//   try {
+//     const [counter, _] = await deploy('counter.arl');
+//     await counter.increment({});
+//   } catch(e) { console.log(e) }
+// }
+// test();
+
+// Cheat-sheet Archetype: https://docs.google.com/document/d/1ptmayOVtG9spJdF8dPvArfAOfevmYMBflTWwm2g_cts/edit?usp=sharing
+// Exercise First.1
+// Test the example contract "examples/counter" from gitpod
+// Exercise First.2
+// Create a contract that has a string as storage.
+// The contract should take a string as a parameter.
+// When called, it should add a comma and this parameter, at the end of the storage.
+// Test this contract. Make sure you check the syntax for passing a parameter to your entry point.  (see in cheat-sheet, ({ arg : {[param]: [value] })
+// Exercise First.3
+// Change the contract from the previous exercise, by adding to the Storage, the number of times that it was called.
+// For example, at first, the contract may contain “Hello” and 0. Then after a call with the parameter “John”, it will contain “Hello,John” and 1. Then after another call, “Hello,John,Jennifer” and 2.
+// Test this contract.
+
+archetype contractTest
+
+variable stringVar : string = "toto"
+variable count : nat = 0
+
+entry addString(newString : string) { 
+    stringVar += ", " + newString;
+    count += 1;
+}

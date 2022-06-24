@@ -1,0 +1,14 @@
+A few things to keep in mind (also presented with illustrations at the bottom of the cheat-sheet):
+- if when you open a .tz file, you don't see the extension on the right side, that shows you the type of each instruction when you click on it (as shown in the video), you may need to reload the page. It sometimes happens.
+
+- if everything is underlined in red and you simply have "typecheck error", this means the type of what you have in the stack at the end is incorrect. This happens a lot while you change your program, and a good way to avoid this is to add DROP instructions to compensate for any instructions you added that adds things to the stack.
+
+- when you debug your program, "Cell 1" is the top of the stack, and as soon as you push something on the stack, whatever was in Cell 1 is now in Cell 2. The number behind Cell just represents the depth of the stack. So it's not that the content really moves, just that we number everything relative to the top of the stack.
+
+- if you are debugging your program, change your program, and keep debugging, it's the old version of your program that is still running. This can be really confusing as the debugging will do things that may have nothing to do with what is highlighted in your file, so make sure you stop the debugging of your program before you make changes.
+
+Exercise Michelson.1
+
+Write a Michelson Smart Contrat that takes a pair of integers (a,b) as parameter, and replaces its storage with the value of this expression:
+
+a * (2b + 3a)

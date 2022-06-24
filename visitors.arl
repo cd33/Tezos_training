@@ -1,0 +1,48 @@
+// Important notes
+// 1. Since the video, some function names have changed:
+// - addupdate becomes add_update
+// - removeif becomes remove_if
+
+// 2. The correct syntax for adding an entry to an asset is:
+//  visitor.add({ login = "john284"; name = "john" });
+
+// The video shows visitor.add("john284", { name = "john" });  but this is the syntax to use for addupdate, not add.
+
+// Exercise Maps.1
+// - Step 1: add some tests
+// Create a test scenario for  the visitors example contract.
+
+// In particular, test:
+// - the registration of a new user
+// - multiple visits from that user
+// - check that visits are counted correctly
+
+// - Step 2
+// Modify the contract so that:
+// - The address of the caller is used, rather than a login, to identify users.
+// - Make users pay 5 tez for the first visit, and 3 tez for the next ones
+// - Enforce a delay of a minimum of 10 days between two visits of the same user.
+// Test these changes
+
+archetype visitors
+
+asset visitor {
+ login    : address;
+ name     : string;
+ nbvisits : nat = 0;
+ lastVisit : date = 2022-06-23T15:08:00
+}
+
+entry register(l : address, n : string) {
+ visitor.add_update(l, { name = n });
+}
+
+entry visit(l :address) {
+    do_require(visitor[caller].lastVisit + 10d < now, "Too early");
+    if visitor[l].nbvisits = 0 then
+        do_require(transferred = 5tz, "5tz to entry")
+     else
+        do_require(transferred = 3tz, "3tz to entry");
+    visitor[l].nbvisits += 1;
+    visitor[caller].lastVisit := now;
+}
